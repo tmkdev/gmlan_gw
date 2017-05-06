@@ -5,13 +5,16 @@ import sys
 
 def splitid(line):
     parts=line.strip().split(' ')
-    msg = parts[2].split("#")
+    try:
+        msg = parts[2].split("#")
+    except:
+        return 0,0
 
     id=0 
     try:
         id = int(msg[0], base=16)
     except:
-        pass
+        return 0, 0
 
     return id, msg[1]
 
