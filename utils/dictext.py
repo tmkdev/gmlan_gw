@@ -5,10 +5,11 @@ import can
 import re
 import time
 
-pimcu=0x099
+#Personal Communications between 0x90 and 0x97
+pimcu=0x092
 attarb = ( 0x4 << 26) | (0x0185 << 13) | pimcu
 txtarb = ( 0x4 << 26) | (0x0186 << 13) | pimcu
-maxpacketlen = 3
+maxpacketlen = 5
 
 def slicetext(text):
     trunc = (maxpacketlen * 6) - 1
@@ -72,7 +73,10 @@ def cleartext():
     return True
    
 if __name__ == '__main__':
-    print(sendtext('BobbiC'))
-    print(sendtext('Bobbi Cahill'))
-    print(sendtext('Bobbi Cahill loves Terry!'))
+    print(sendtext('Test'))
+    time.sleep(1)
+    print(sendtext('Test Test!'))
+    time.sleep(1)
+    print(sendtext('Test Test Test Test Test Test'))
+    time.sleep(15)
     print(cleartext())
