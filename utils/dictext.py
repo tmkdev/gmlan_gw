@@ -17,15 +17,15 @@ headers = {
 }
 
 directiondict = {
-    'name': 'OUR HOME PLACE FOR US',
-    'streetnumber': '1234',
-    'streetname': 'BLAHBLAH',
-    'streettype': 'ST', 
+    'name': 'IKEA SAN DIEGO',
+    'streetnumber': '2149',
+    'streetname': 'FENTON',
+    'streettype': 'PKWY', 
     'city': 'SAN DIEGO', 
     'state': 'CA',
-    'longitude': -117.123456,
-    'latitude': 32.123467,
-    'phone': '16198466167'
+    'longitude': -117.126403,
+    'latitude': 32.78004,
+    'phone': '18888884532'
 }
 
 def slicetext(text, maxpacketlen=5):
@@ -45,21 +45,13 @@ def slicetext(text):
     return slices
     
 def attribute_header(headertype):
-    bus = can.interface.Bus()
     msg = can.Message(arbitration_id=attarb,
                       data=headers[headertype],
                       extended_id=True)
-    try:
-        bus.send(msg)
-    except:
-        logging.exception("Message not sent.. ")
-        return False
-    
-    time.sleep(0.03)
-    return True
+
+    sendmessages([msg])
 
 def senddirections(directions):
-    bus = can.interface.Bus()
     string="\x01{name}\n\x02{streetnumber}\n\x04{streetname}\n\x05{streettype}\n\x07{city}\n\x08{state}\n\x09{longitude:+.4f}\n\x0b{latitude:+.4f}\n\x0c{phone}\n".format(**directions) 
     textparts = slicetext(string)
 
@@ -79,17 +71,8 @@ def senddirections(directions):
             data=data,
             extended_id=True))
 
-    for message in messages:
-        try:
-            bus.send(message)
-            logging.info("Message sent on {}".format(bus.channel_info))
-        except can.CanError:
-            logging.warning("Message NOT sent")
-            return False
+    return sendmessages(messages)
 
-    return True
-
-   
 def sendtext(text):
     #0185 0097 000262020019
     #0186 0097 2702426C7565746F
@@ -99,8 +82,6 @@ def sendtext(text):
     text = text[:maxlength] + chr(0x04)
     textparts = slicetext(text)
     messages = []
-    bus = can.interface.Bus()
-
     attribute_header('display')
 
     for index, part in enumerate(textparts):
@@ -116,19 +97,24 @@ def sendtext(text):
             data=data,
             extended_id=True))
 
+    return sendmessages(messages)
+
+def cleartext():
+    attribute_header('clear')
+
+def sendmessages(messages):
+    bus = can.interface.Bus()
+
     for message in messages:
         try:
             bus.send(message)
             logging.info("Message sent on {}".format(bus.channel_info))
-            time.sleep(0.05)
+            time.sleep(0.01)
         except can.CanError:
             logging.warning("Message NOT sent")
             return False
 
     return True
-
-def cleartext():
-    attribute_header('clear')
    
 if __name__ == '__main__':
     print(senddirections(directiondict))
